@@ -4,6 +4,9 @@ import { authorRouter } from './authorRouter.js';
 import { categoryRouter } from './categoryRouter.js';
 import { pictureRouter } from './pictureRouter.js';
 import { techniqueRouter } from './techniqueRouter.js';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export const router = new Router()
 

@@ -3,16 +3,16 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, Favorite, Basket} from '../models/models.js';
 
-const generateJwt = (id, email, role) => {
+const generateJwt = (id, login, role) => {
     return jwt.sign(
-        {id, email, role},
+        {id, login, role},
         process.env.SECRET_KEY,
         {expiresIn: '24h'}
     )
 }
 
 class UserController {
-    async register(req, res) {
+    async register(req, res, next) {
         const {login, password, role} = req.body
         if (!login || !password) {
             return next(ApiError.badRequest('Некорректный логин или пароль'))
@@ -22,10 +22,10 @@ class UserController {
             return next(ApiError.badRequest('Пользователь с таким логином уже существует'))
         }
         const hashPassword = await bcrypt.hash(password, 5)
-        const user = await User.create({login, hash, password: hashPassword})
+        const user = await User.create({login, role, password: hashPassword})
         const basket = await Basket.create({userId: user.id})
         const favorite = await Favorite.create({userId: user.id})
-        const token = generateJwt(user.id, user.email, user.role)
+        const token = generateJwt(user.id, user.login, user.role)
         return res.json({token})
     }
 
@@ -39,8 +39,8 @@ class UserController {
         if (!comparePassword) {
             return next(ApiError.internal('Указан неверный пароль'))
         }
-        const token = generateJwt(user.id, user.email, user.role)
-        return res.jspn({token})
+        const token = generateJwt(user.id, user.login, user.role)
+        return res.json({token})
     }
 
     async check(req, res, next) {

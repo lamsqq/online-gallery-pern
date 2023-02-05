@@ -2,13 +2,19 @@ import { v4 as uuidv4 } from 'uuid'
 import path from 'path';
 import { Picture } from '../models/models.js';
 import ApiError from '../error/ApiError.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 
 class PictureController {
     async create(req, res, next) {
         try {
             const {authorId, name, price, techniqueId, size, categoryId, country, year} = req.body
             const {img} = req.files
-            let fileName = uuid.v4() + ".jpg"
+            let fileName = uuidv4() + ".jpg"
             img.mv(path.resolve(__dirname, '..', 'static', fileName))
 
             const picture = await Picture.create({authorId, name, price, techniqueId, size, categoryId, country, year, img: fileName})
